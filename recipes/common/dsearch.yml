@@ -1,0 +1,9 @@
+---
+modules:
+  - type: dnf
+    repos:
+      copr:
+        - avengemedia/danklinux
+    install:
+      packages:
+        - dsearch

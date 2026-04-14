@@ -1,0 +1,11 @@
+---
+modules:
+  - type: dnf
+    install:
+      packages:
+        - niri
+        - xorg-x11-server-Xwayland
+        - qt6-qtwayland
+        - qt5-qtwayland
+        - xdg-desktop-portal-gtk
+        - xdg-desktop-portal-gnome

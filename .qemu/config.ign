@@ -1,0 +1,135 @@
+{
+  "ignition": {
+    "version": "3.4.0"
+  },
+  "passwd": {
+    "users": [
+      {
+        "name": "tdesaules",
+        "sshAuthorizedKeys": [
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBHoJueEZGM3mUAkWxKYaXG6+37VhW5Wymqj4HOMuz9z tdesaules@Mac.lan"
+        ],
+        "uid": 501
+      }
+    ]
+  },
+  "storage": {
+    "files": [
+      {
+        "path": "/etc/hostname",
+        "contents": {
+          "compression": "",
+          "source": "data:,78cd44f6-db3b-4d3f-bbc1-149b38d71672.local"
+        },
+        "mode": 420
+      },
+      {
+        "path": "/etc/systemd/resolved.conf.d/mdns.conf",
+        "contents": {
+          "compression": "",
+          "source": "data:,%5BResolve%5D%0AMulticastDNS%3Dyes%0A"
+        },
+        "mode": 420
+      },
+      {
+        "path": "/etc/profile.d/terminal-fix.sh",
+        "contents": {
+          "compression": "",
+          "source": "data:,export%20TERM%3Dlinux%0Aexport%20SYSTEMD_PAGER%3Dcat%0A"
+        },
+        "mode": 420
+      },
+      {
+        "overwrite": true,
+        "path": "/etc/subuid",
+        "contents": {
+          "compression": "",
+          "source": "data:,tdesaules%3A100000%3A65536%0A"
+        },
+        "mode": 420
+      },
+      {
+        "overwrite": true,
+        "path": "/etc/subgid",
+        "contents": {
+          "compression": "",
+          "source": "data:,tdesaules%3A100000%3A65536%0A"
+        },
+        "mode": 420
+      },
+      {
+        "path": "/etc/sudoers.d/tdesaules",
+        "contents": {
+          "compression": "",
+          "source": "data:,tdesaules%20ALL%3D(ALL)%20NOPASSWD%3A%20ALL%0A"
+        },
+        "mode": 288
+      },
+      {
+        "overwrite": true,
+        "path": "/home/tdesaules/.bashrc",
+        "user": {
+          "name": "tdesaules"
+        },
+        "contents": {
+          "compression": "gzip",
+          "source": "data:;base64,H4sIAAAAAAAC/2yQT0vDMBjG7/kUDyEMHazBq6OHIhu9+AftbZSRxYS+GNqSRB0e/OyStatWvf7e3/O8yUsWO6wspIlaHlRovEa9RmxMi+wnXcMSM8e+8xEPRVXmXJT3txuZuU4rJw/UXovEOTv1fcos5fZDIqDGYoHsN567ypEK5o874uQeIV+Dl9NKGaLyoaF+yJg35cDFxUSppYhUcslZ+ukOYoU8x5KWqE+R79JUZ1WI1kTd4Dz8ABfb4qnabqqbcv9Y3PHzeRgw6QwYTzNz8ytmKb37GeO13jv/EnqlDR826H8m7CsAAP//7SD+opQBAAA="
+        },
+        "mode": 420
+      },
+      {
+        "overwrite": true,
+        "path": "/home/tdesaules/.bash_aliases",
+        "user": {
+          "name": "tdesaules"
+        },
+        "contents": {
+          "compression": "",
+          "source": "data:,alias%20ll%3D'ls%20-alF'%0Aalias%20la%3D'ls%20-A'%0Aalias%20l%3D'ls%20-CF'%0Aalias%20lzg%3D'lazygit'%0A"
+        },
+        "mode": 420
+      },
+      {
+        "overwrite": true,
+        "path": "/home/tdesaules/.bash_exports",
+        "user": {
+          "name": "tdesaules"
+        },
+        "contents": {
+          "compression": "",
+          "source": "data:,export%20STARSHIP_CONFIG%3D%2Fetc%2Fstarship%2Fstarship.toml%0Aexport%20user%3D%24(whoami)%0A"
+        },
+        "mode": 420
+      }
+    ]
+  },
+  "systemd": {
+    "units": [
+      {
+        "contents": "[Unit]\nDescription=Provisioning System Packages\nAfter=network-online.target\nWants=network-online.target\n\n[Service]\nType=oneshot\nRemainAfterExit=yes\nExecStart=/usr/bin/bash -c ' \\\n  INSTALL_REQUIRED=0; \\\n  for pkg in fastfetch tree rust cargo; do \\\n    if [ ! -f /usr/bin/$pkg ]; then \\\n      echo \"Package $pkg is missing.\"; \\\n      INSTALL_REQUIRED=1; \\\n      break; \\\n    fi; \\\n  done; \\\n  if [ \"$INSTALL_REQUIRED\" -eq 1 ]; then \\\n    echo \"Starting rpm-ostree installation for: fastfetch tree rust cargo\"; \\\n    /usr/bin/rpm-ostree install --apply-live --allow-inactive fastfetch tree rust cargo; \\\n  else \\\n    echo \"Success: All packages (fastfetch tree rust cargo) are already installed. Skipping.\"; \\\n  fi'\n\n[Install]\nWantedBy=multi-user.target\n",
+        "enabled": true,
+        "name": "install-system-pkgs.service"
+      },
+      {
+        "contents": "[Unit]\nDescription=Provisioning Starship\nAfter=network-online.target\nConditionPathExists=!/usr/local/bin/starship\n\n[Service]\nType=oneshot\nExecStart=/usr/bin/bash -c ' \\\n  set -eux -o pipefail; \\\n  ARCH=$$(uname -m); \\\n  STARSHIP_VERSION=\"1.24.2\"; \\\n  if [ \"$$ARCH\" == \"x86_64\" ]; then \\\n    STARSHIP_URL=\"https://github.com/starship/starship/releases/download/v$${STARSHIP_VERSION}/starship-x86_64-unknown-linux-gnu.tar.gz\"; \\\n  elif [ \"$$ARCH\" == \"aarch64\" ]; then \\\n    STARSHIP_URL=\"https://github.com/starship/starship/releases/download/v$${STARSHIP_VERSION}/starship-aarch64-unknown-linux-musl.tar.gz\"; \\\n  else exit 1; fi; \\\n  curl --silent --location --fail --remote-name-all --request GET \"$$STARSHIP_URL\" --output /tmp/starship.tar.gz; \\\n  tar --extract --gzip --file /tmp/starship.tar.gz --directory /usr/local/bin; \\\n  rm -rf /tmp/starship.tar.gz'\n\n[Install]\nWantedBy=multi-user.target\n",
+        "enabled": true,
+        "name": "install-starship.service"
+      },
+      {
+        "contents": "[Unit]\nDescription=Provisioning Lazygit\nAfter=network-online.target\nConditionPathExists=!/usr/local/bin/lazygit\n\n[Service]\nType=oneshot\nExecStart=/usr/bin/bash -c ' \\\n  set -eux -o pipefail; \\\n  ARCH=$$(uname -m); \\\n  LAZYGIT_VERSION=\"0.59.0\"; \\\n  if [ \"$$ARCH\" == \"x86_64\" ]; then \\\n    LAZYGIT_URL=\"https://github.com/jesseduffield/lazygit/releases/download/v$${LAZYGIT_VERSION}/lazygit_$${LAZYGIT_VERSION}_linux_x86_64.tar.gz\"; \\\n  elif [ \"$$ARCH\" == \"aarch64\" ]; then \\\n    LAZYGIT_URL=\"https://github.com/jesseduffield/lazygit/releases/download/v$${LAZYGIT_VERSION}/lazygit_$${LAZYGIT_VERSION}_linux_arm64.tar.gz\"; \\\n  else exit 1; fi; \\\n  curl --silent --location --fail --remote-name-all --request GET \"$$LAZYGIT_URL\" --output /tmp/lazygit.tar.gz; \\\n  tar --extract --gzip --file /tmp/lazygit.tar.gz --directory /usr/local/bin lazygit; \\\n  rm -rf /tmp/lazygit.tar.gz'\n\n[Install]\nWantedBy=multi-user.target\n",
+        "enabled": true,
+        "name": "install-lazygit.service"
+      },
+      {
+        "contents": "[Unit]\nDescription=Mount Host Shared Directory in Home\nConditionVirtualization=qemu\n\n[Mount]\nWhat=workspace\nWhere=/var/home/tdesaules/workspace\nType=9p\nOptions=trans=virtio,version=9p2000.L,rw,msize=104857600\n\n[Install]\nWantedBy=multi-user.target\n",
+        "enabled": true,
+        "name": "var-home-tdesaules-workspace.mount"
+      },
+      {
+        "contents": "[Unit]\nDescription=Mount Starship Config (ReadOnly)\nConditionVirtualization=qemu\n\n[Mount]\nWhat=starship\nWhere=/etc/starship\nType=9p\nOptions=trans=virtio,version=9p2000.L,ro,msize=104857600\n\n[Install]\nWantedBy=multi-user.target\n",
+        "enabled": true,
+        "name": "etc-starship.mount"
+      }
+    ]
+  }
+}

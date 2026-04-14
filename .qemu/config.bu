@@ -1,0 +1,207 @@
+variant: fcos
+
+version: 1.5.0
+
+passwd:
+  users:
+    - name: ${QEMU_VM_USER}
+      uid: ${QEMU_VM_USER_UID}
+      ssh_authorized_keys:
+        - "${QEMU_VM_SSH_KEY}"
+
+storage:
+  files:
+    - path: /etc/hostname
+      mode: 0644
+      contents:
+        inline: ${QEMU_VM_HOSTNAME}
+
+    - path: /etc/systemd/resolved.conf.d/mdns.conf
+      mode: 0644
+      contents:
+        inline: |
+          [Resolve]
+          MulticastDNS=yes
+
+    - path: /etc/profile.d/terminal-fix.sh
+      mode: 0644
+      contents:
+        inline: |
+          export TERM=linux
+          export SYSTEMD_PAGER=cat
+
+    - path: /etc/subuid
+      mode: 0644
+      overwrite: true
+      contents:
+        inline: |
+          tdesaules:100000:65536
+
+    - path: /etc/subgid
+      mode: 0644
+      overwrite: true
+      contents:
+        inline: |
+          tdesaules:100000:65536
+
+    - path: /etc/sudoers.d/tdesaules
+      mode: 0440
+      contents:
+        inline: |
+          tdesaules ALL=(ALL) NOPASSWD: ALL
+
+    - path: /home/${QEMU_VM_USER}/.bashrc
+      overwrite: true
+      mode: 0644
+      user:
+        name: ${QEMU_VM_USER}
+      contents:
+        inline: |
+          if [ -f /etc/bashrc ]; then . /etc/bashrc; fi
+          export PATH="$HOME/.local/bin:$PATH"
+          [ -f ~/.bash_exports ] && . ~/.bash_exports
+          [ -f ~/.bash_aliases ] && . ~/.bash_aliases
+          [ -x /usr/local/bin/starship ] && eval "$(starship init bash)"
+          if [[ $- == *i* ]] && [ -x /usr/bin/fastfetch ] && [ -z "$FASTFETCH_RAN" ]; then
+            fastfetch
+            export FASTFETCH_RAN=1
+          fi
+          [ -d "$HOME/workspace" ] && cd "$HOME/workspace"
+
+    - path: /home/${QEMU_VM_USER}/.bash_aliases
+      overwrite: true
+      mode: 0644
+      user:
+        name: ${QEMU_VM_USER}
+      contents:
+        inline: |
+          alias ll='ls -alF'
+          alias la='ls -A'
+          alias l='ls -CF'
+          alias lzg='lazygit'
+
+    - path: /home/${QEMU_VM_USER}/.bash_exports
+      overwrite: true
+      mode: 0644
+      user:
+        name: ${QEMU_VM_USER}
+      contents:
+        inline: |
+          export STARSHIP_CONFIG=/etc/starship/starship.toml
+          export user=$(whoami)
+
+systemd:
+  units:
+    - name: install-system-pkgs.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Provisioning System Packages
+        After=network-online.target
+        Wants=network-online.target
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/usr/bin/bash -c ' \
+          INSTALL_REQUIRED=0; \
+          for pkg in ${PKG_SYSTEM}; do \
+            if [ ! -f /usr/bin/$pkg ]; then \
+              echo "Package $pkg is missing."; \
+              INSTALL_REQUIRED=1; \
+              break; \
+            fi; \
+          done; \
+          if [ "$INSTALL_REQUIRED" -eq 1 ]; then \
+            echo "Starting rpm-ostree installation for: ${PKG_SYSTEM}"; \
+            /usr/bin/rpm-ostree install --apply-live --allow-inactive ${PKG_SYSTEM}; \
+          else \
+            echo "Success: All packages (${PKG_SYSTEM}) are already installed. Skipping."; \
+          fi'
+
+        [Install]
+        WantedBy=multi-user.target
+
+    - name: install-starship.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Provisioning Starship
+        After=network-online.target
+        ConditionPathExists=!/usr/local/bin/starship
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/bin/bash -c ' \
+          set -eux -o pipefail; \
+          ARCH=$$(uname -m); \
+          STARSHIP_VERSION="${VERSION_STARSHIP}"; \
+          if [ "$$ARCH" == "x86_64" ]; then \
+            STARSHIP_URL="https://github.com/starship/starship/releases/download/v$${STARSHIP_VERSION}/starship-x86_64-unknown-linux-gnu.tar.gz"; \
+          elif [ "$$ARCH" == "aarch64" ]; then \
+            STARSHIP_URL="https://github.com/starship/starship/releases/download/v$${STARSHIP_VERSION}/starship-aarch64-unknown-linux-musl.tar.gz"; \
+          else exit 1; fi; \
+          curl --silent --location --fail --remote-name-all --request GET "$$STARSHIP_URL" --output /tmp/starship.tar.gz; \
+          tar --extract --gzip --file /tmp/starship.tar.gz --directory /usr/local/bin; \
+          rm -rf /tmp/starship.tar.gz'
+
+        [Install]
+        WantedBy=multi-user.target
+
+    - name: install-lazygit.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Provisioning Lazygit
+        After=network-online.target
+        ConditionPathExists=!/usr/local/bin/lazygit
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/bin/bash -c ' \
+          set -eux -o pipefail; \
+          ARCH=$$(uname -m); \
+          LAZYGIT_VERSION="${VERSION_LAZYGIT}"; \
+          if [ "$$ARCH" == "x86_64" ]; then \
+            LAZYGIT_URL="https://github.com/jesseduffield/lazygit/releases/download/v$${LAZYGIT_VERSION}/lazygit_$${LAZYGIT_VERSION}_linux_x86_64.tar.gz"; \
+          elif [ "$$ARCH" == "aarch64" ]; then \
+            LAZYGIT_URL="https://github.com/jesseduffield/lazygit/releases/download/v$${LAZYGIT_VERSION}/lazygit_$${LAZYGIT_VERSION}_linux_arm64.tar.gz"; \
+          else exit 1; fi; \
+          curl --silent --location --fail --remote-name-all --request GET "$$LAZYGIT_URL" --output /tmp/lazygit.tar.gz; \
+          tar --extract --gzip --file /tmp/lazygit.tar.gz --directory /usr/local/bin lazygit; \
+          rm -rf /tmp/lazygit.tar.gz'
+
+        [Install]
+        WantedBy=multi-user.target
+
+    - name: var-home-${QEMU_VM_USER}-workspace.mount
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Mount Host Shared Directory in Home
+        ConditionVirtualization=qemu
+
+        [Mount]
+        What=workspace
+        Where=/var/home/${QEMU_VM_USER}/workspace
+        Type=9p
+        Options=trans=virtio,version=9p2000.L,rw,msize=104857600
+
+        [Install]
+        WantedBy=multi-user.target
+
+    - name: etc-starship.mount
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Mount Starship Config (ReadOnly)
+        ConditionVirtualization=qemu
+
+        [Mount]
+        What=starship
+        Where=/etc/starship
+        Type=9p
+        Options=trans=virtio,version=9p2000.L,ro,msize=104857600
+
+        [Install]
+        WantedBy=multi-user.target

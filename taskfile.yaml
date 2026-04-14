@@ -1,0 +1,26 @@
+version: "3"
+
+dotenv: [".envrc"]
+
+set: [pipefail]
+
+shell:
+  path: /bin/bash
+  args: ["-c"]
+
+includes:
+  qemu:
+    taskfile: ./.qemu/taskfile.qemu.yaml
+    dir: .
+    optional: true
+
+tasks:
+  list:
+    desc: "List available commands"
+    cmds:
+      - task -l
+
+  check:
+    desc: "Confirm dependencies are meet"
+    cmds:
+      - task qemu:check

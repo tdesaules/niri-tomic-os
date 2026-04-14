@@ -1,0 +1,240 @@
+version: "3"
+
+tasks:
+  check:
+    desc: "Qemu : Confirm dependencies are meet"
+    silent: true
+    cmds:
+      - echo "✅ Configuration validée."
+    preconditions:
+      - sh: command -v qemu-system-aarch64
+        msg: "❌ 'qemu-system-aarch64' missing."
+      - sh: command -v butane
+        msg: "❌ 'butane' missing."
+      - sh: command -v shasum
+        msg: "❌ 'shasum' missing."
+      - sh: command -v jq
+        msg: "❌ 'jq' missing."
+      - sh: test -f "$QEMU_FIRMWARE_FILE"
+        msg: "❌ '$QEMU_FIRMWARE_FILE' file not found'."
+      - sh: test -f "$BUTANE_CONFIG_FILE"
+        msg: "❌ '$BUTANE_CONFIG_FILE' file not found."
+      - sh: '[ -n "$FEDORA_STREAM" ]'
+        msg: "❌ 'FEDORA_STREAM' is empty."
+      - sh: '[ -n "$FEDORA_VERSION" ]'
+        msg: "❌ 'FEDORA_VERSION' is empty."
+      - sh: '[ -n "$FEDORA_ARCH" ]'
+        msg: "❌ 'FEDORA_ARCH' is empty."
+      - sh: '[ -n "$QEMU_VM_ID" ]'
+        msg: "❌ 'QEMU_VM_ID' is empty."
+      - sh: '[ -n "$QEMU_VM_WORKSPACE" ]'
+        msg: "❌ 'QEMU_VM_WORKSPACE' is empty."
+      - sh: '[ -n "$QEMU_IMAGE_FILE" ]'
+        msg: "❌ 'QEMU_IMAGE_FILE' is empty."
+      - sh: '[ -n "$QEMU_IMAGE_URL" ]'
+        msg: "❌ 'QEMU_IMAGE_URL' is empty."
+      - sh: '[ -n "$QEMU_IMAGE_SHA256" ]'
+        msg: "❌ 'QEMU_IMAGE_SHA256' is empty."
+      - sh: '[ -n "$QEMU_VM_MEMORY" ]'
+        msg: "❌ 'QEMU_VM_MEMORY' is empty."
+      - sh: '[ -n "$QEMU_VM_CPU" ]'
+        msg: "❌ 'QEMU_VM_CPU' is empty."
+      - sh: '[ -n "$QEMU_PID_FILE" ]'
+        msg: "❌ 'QEMU_PID_FILE' is empty."
+      - sh: '[ -n "$QEMU_LOG_FILE" ]'
+        msg: "❌ 'QEMU_LOG_FILE' is empty."
+
+  build-ignition:
+    desc: "Compile Butane config to Ignition (Only if changed)"
+    silent: true
+    deps: [check]
+    sources:
+      - "${BUTANE_CONFIG_FILE}"
+      - ".envrc"
+    generates:
+      - "${IGNITION_CONFIG_FILE}"
+    cmds:
+      - echo "Configuration change detected! Stopping current VM and preparing a fresh disk..."
+      - echo "Compiling Butane config (${BUTANE_CONFIG_FILE})..."
+      - rm -f "${QEMU_IMAGE_FILE}"
+      - |
+        cat "${BUTANE_CONFIG_FILE}" | envsubst \
+        '$QEMU_VM_USER $QEMU_VM_USER_UID $QEMU_VM_SSH_KEY $QEMU_VM_HOSTNAME $PKG_SYSTEM $VERSION_STARSHIP $VERSION_LAZYGIT $VERSION_GO $VERSION_SASS $VERSION_HUGO' | \
+        butane --pretty --strict --output "${IGNITION_CONFIG_FILE}"
+      - echo "Ignition config generated (${IGNITION_CONFIG_FILE})."
+
+  pull-image:
+    desc: "Download and prepare image (Safe: NEVER overwrites existing VM)"
+    silent: true
+    status:
+      - echo "${QEMU_IMAGE_SHA256}  ${QEMU_IMAGE_FILE}.xz" | shasum --check --status --algorithm 256
+    cmds:
+      - echo "Downloading Fedora CoreOS (${FEDORA_VERSION})..."
+      - |
+        [ -d "${QEMU_VM_WORKSPACE}" ] || mkdir "${QEMU_VM_WORKSPACE}"
+      - curl --location --fail --continue-at - --retry 5 --retry-delay 3 --progress-bar --output "${QEMU_IMAGE_FILE}.xz" "${QEMU_IMAGE_URL}"
+      - echo "Verifying checksum..."
+      - echo "${QEMU_IMAGE_SHA256}  ${QEMU_IMAGE_FILE}.xz" | shasum --check --algorithm 256
+      - echo "Image downloaded (${QEMU_IMAGE_FILE}.xz)"
+
+  extract-image:
+    desc: "Extract .qcow2 image from archive if missing"
+    silent: true
+    deps: [pull-image]
+    status:
+      - test -f "${QEMU_IMAGE_FILE}"
+    cmds:
+      - echo "Extracting image..."
+      - unxz --keep --verbose "${QEMU_IMAGE_FILE}.xz"
+      - echo "Image extracted."
+
+  status:
+    desc: "Return QEMU virtual machine status"
+    silent: true
+    cmds:
+      - |
+        STATE="stopped"
+        PID_VAL="null"
+        if [ -f "$QEMU_PID_FILE" ]; then
+          READ_PID=$(sudo cat "$QEMU_PID_FILE")
+          if sudo kill -0 "$READ_PID" 2>/dev/null; then
+            STATE="running"
+            PID_VAL="$READ_PID"
+          else
+            STATE="crashed"
+            PID_VAL="$READ_PID"
+          fi
+        fi
+        printf '{"id":"%s","status":"%s","pid":%s,"config":{"memory":"%s","cpu":"%s","image":"%s"}}\n' "$QEMU_VM_ID" "$STATE" "$PID_VAL" "$QEMU_VM_MEMORY" "$QEMU_VM_CPU" "$QEMU_IMAGE_FILE"
+
+  start:
+    desc: "Start QEMU virtual machine"
+    silent: true
+    deps: [build-ignition, extract-image]
+    status:
+      - test -f "$QEMU_PID_FILE" && sudo kill -0 $(sudo cat "$QEMU_PID_FILE") 2>/dev/null
+    cmds:
+      - echo "Starting QEMU virtual machine..."
+      - |
+        if [ -f "$QEMU_PID_FILE" ]; then
+          echo "Clean obsolete pid..."
+          sudo rm -f "$QEMU_PID_FILE"
+        fi
+      - qemu-img resize "${QEMU_IMAGE_FILE}" "${QEMU_VM_DISK}"
+      - |
+        sudo qemu-system-aarch64 \
+          -name "${QEMU_VM_ID}" \
+          -m $QEMU_VM_MEMORY -smp $QEMU_VM_CPU -cpu host -accel hvf -M virt \
+          -display none \
+          -daemonize \
+          -pidfile "$QEMU_PID_FILE" \
+          -drive if=pflash,format=raw,readonly=on,file="$QEMU_FIRMWARE_FILE" \
+          -drive if=virtio,file="${QEMU_IMAGE_FILE}" \
+          -fw_cfg name=opt/com.coreos/config,file="$IGNITION_CONFIG_FILE" \
+          -netdev vmnet-shared,id=net0 -device virtio-net-pci,netdev=net0 \
+          -fsdev local,id=fsdev0,path="$PWD",security_model=passthrough \
+          -device virtio-9p-pci,fsdev=fsdev0,mount_tag=workspace \
+          -fsdev local,id=fsdev1,path="$HOME/.config/starship",security_model=passthrough,readonly=on \
+          -device virtio-9p-pci,fsdev=fsdev1,mount_tag=starship \
+          -serial file:"$QEMU_LOG_FILE"
+      - echo "QEMU virtual machine started"
+      - |
+        echo "Waiting for SSH to be available on ${QEMU_VM_HOSTNAME}..."
+        TIMEOUT=15
+        COUNTER=0
+        until ssh -q -o BatchMode=yes -o ConnectTimeout=2 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${QEMU_VM_USER}@${QEMU_VM_HOSTNAME} exit 2>/dev/null; do
+          sleep 1
+          COUNTER=$((COUNTER + 1))
+          if [ $COUNTER -gt $TIMEOUT ]; then
+            echo -e "\n Timeout: SSH not reachable after ${TIMEOUT}s. Check your logs with 'task qemu:logs'."
+            exit 1
+          fi
+        done
+      - |
+        echo "Waiting for background provisioning to complete (this may take several minutes)..."
+        PROVISION_TIMEOUT=300
+        PROVISION_COUNTER=0
+        VERIFY_CMD="test -f /usr/bin/fastfetch && \
+                    test -f /usr/local/bin/starship"
+        until ssh -q -o BatchMode=yes -o ConnectTimeout=2 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${QEMU_VM_USER}@${QEMU_VM_HOSTNAME} "$VERIFY_CMD" 2>/dev/null; do
+          sleep 1
+          PROVISION_COUNTER=$((PROVISION_COUNTER + 1))
+          if [ $PROVISION_COUNTER -gt $PROVISION_TIMEOUT ]; then
+            echo -e "\n Timeout: Provisioning took too long."
+            exit 1
+          fi
+        done
+      - task qemu:status | jq .
+
+  stop:
+    desc: "Stop QEMU virtual machine"
+    silent: true
+    vars:
+      force: '{{default "false" .force}}'
+    cmds:
+      - |
+        JSON_OUTPUT=$(task qemu:status)
+        STATE=$(echo "$JSON_OUTPUT" | jq -r '.status')
+        PID=$(echo "$JSON_OUTPUT" | jq -r '.pid')
+        if [ "$STATE" == "running" ]; then
+          if [ "{{.force}}" == "true" ]; then
+            echo "Force killing VM..."
+            sudo kill -9 "$PID" 2>/dev/null || true
+          else
+            echo "Sending graceful shutdown signal via SSH..."
+            ssh -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${QEMU_VM_USER}@${QEMU_VM_HOSTNAME} "sudo systemctl poweroff" 2>/dev/null || (echo "SSH unreachable, falling back to SIGTERM..." && sudo kill "$PID")
+            TIMEOUT=20
+            COUNTER=0
+            while sudo kill -0 "$PID" 2>/dev/null; do
+              sleep 1
+              COUNTER=$((COUNTER + 1))
+              if [ $COUNTER -gt $TIMEOUT ]; then
+                echo "Shutdown timeout, forcing kill..."
+                sudo kill -9 "$PID" 2>/dev/null || true
+                break
+              fi
+            done
+          fi
+          sudo rm -f "$QEMU_PID_FILE"
+          echo "VM stopped."
+        else
+          echo "VM is not running."
+          sudo rm -f "$QEMU_PID_FILE"
+        fi
+
+  clean:
+    desc: "Clean QEMU virtual machine and workspace"
+    silent: true
+    deps: [check]
+    cmds:
+      - echo "Forcing QEMU to stop..."
+      - task qemu:stop force=true
+      - echo "Cleaning workspace (${QEMU_VM_WORKSPACE})..."
+      - rm -rf "${IGNITION_CONFIG_FILE}"
+      - rm -rf "${QEMU_VM_WORKSPACE}"
+
+  logs:
+    desc: "Tail QEMU virtual machine logs"
+    silent: true
+    deps: [check]
+    preconditions:
+      - sh: test -f "$QEMU_LOG_FILE"
+        msg: "'$QEMU_LOG_FILE' file is missing."
+    cmds:
+      - tail -f "$QEMU_LOG_FILE"
+
+  ssh:
+    desc: "Connect to the virtual machine via ssh"
+    silent: true
+    deps: [check]
+    cmds:
+      - |
+        STATE=$(task qemu:status | jq -r '.status')
+        if [ "$STATE" != "running" ]; then
+          echo "QEMU virtual machine is not started."
+          exit 1
+        fi
+        echo "Clean old key..."
+        ssh-keygen -R $QEMU_VM_HOSTNAME 2>/dev/null
+        echo "Connexion to {QEMU_VM_USER}@${QEMU_VM_HOSTNAME}..."
+        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${QEMU_VM_USER}@${QEMU_VM_HOSTNAME}

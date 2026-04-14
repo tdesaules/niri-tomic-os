@@ -1,0 +1,11 @@
+---
+modules:
+  - type: dnf
+    install:
+      install-weak-deps: false
+      packages:
+        - greetd
+  - type: systemd
+    system:
+      enabled:
+        - greetd.service
