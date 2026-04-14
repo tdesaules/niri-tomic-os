@@ -1,0 +1,12 @@
+[Unit]
+Description=Rotate wallpaper using DMS IPC
+After=graphical-session.target
+Requires=dms.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/dms ipc call wallpaper next
+StandardOutput=journal
+
+[Install]
+WantedBy=graphical-session.target

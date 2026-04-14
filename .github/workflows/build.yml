@@ -1,0 +1,70 @@
+name: bluebuild
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "recipes/**"
+      - "files/**"
+      - "modules/**"
+      - ".github/workflows/build.yml"
+      - "cosign.pub"
+
+  workflow_dispatch:
+    inputs:
+      build_iso:
+        description: "Generate the iso"
+        type: boolean
+        default: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  bluebuild:
+    name: Build custom image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        recipe:
+          - recipe.yml
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Build Custom Image
+        uses: blue-build/github-action@v1.11
+        with:
+          recipe: ${{ matrix.recipe }}
+          cosign_private_key: ${{ secrets.SIGNING_SECRET }}
+          registry_token: ${{ github.token }}
+          pr_event_number: ${{ github.event.number }}
+          maximize_build_space: true
+      - name: Build iso
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.build_iso == 'true'
+        uses: jasonn3/build-container-installer@v1.4.0
+        id: build
+        with:
+          arch: x86_64
+          image_name: "niri-tomic-os"
+          image_repo: "ghcr.io/${{ github.repository_owner }}"
+          image_tag: "latest"
+          version: "44"
+          variant: "Server"
+          iso_name: niri-tomic-os-44-amd64.iso
+      - name: Upload iso as artifact
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.build_iso == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.build.outputs.iso_name }}
+          path: |
+            ${{ steps.build.outputs.iso_path }}/${{ steps.build.outputs.iso_name }}
+            ${{ steps.build.outputs.iso_path }}/${{ steps.build.outputs.iso_name }}.sha256
+          retention-days: 1

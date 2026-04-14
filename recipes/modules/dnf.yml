@@ -1,0 +1,44 @@
+---
+modules:
+  - type: dnf
+    repos:
+      copr:
+        - avengemedia/danklinux
+        - avengemedia/dms
+        - yalter/niri-git
+        - scottames/ghostty
+        - lilay/topgrade
+    install:
+      install-weak-deps: false
+      packages:
+        # Login Manager
+        - greetd
+        - dms-greeter
+
+        # Window Manager & Wayland
+        - niri
+        - xorg-x11-server-Xwayland
+        - qt6-qtwayland
+        - qt5-qtwayland
+        - xdg-desktop-portal-gtk
+        - xdg-desktop-portal-gnome
+
+        # Core System & Dank Linux Shell
+        - dms
+        - dgop
+        - dsearch
+        - sudo-rs
+        - polkit
+        - cracklib-dicts
+        - authselect
+
+        # Utilities & Apps
+        - git
+        - ghostty
+        - qemu
+        - chezmoi
+        - topgrade
+    remove:
+      auto-remove: true
+      packages:
+        - waybar

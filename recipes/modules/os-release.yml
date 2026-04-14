@@ -1,0 +1,9 @@
+---
+modules:
+  - type: os-release
+    properties:
+      ID: fedora
+      NAME: Fedora
+      PRETTY_NAME: Niri Tonic OS (Fedora
+      VERSION_ID: "44"
+      LOGO: niri-tomic-os
