@@ -1,0 +1,7 @@
+---
+modules:
+  - type: os-release
+    properties:
+      PRETTY_NAME: Niri Tonic OS (Rawhide)
+      DEFAULT_HOSTNAME: niritonicos
+      LOGO: niri-tomic-os

@@ -1,0 +1,13 @@
+[Unit]
+Description=Set default wallpaper once after dms.service
+After=graphical-session.target dms.service
+Requires=dms.service
+
+[Service]
+Type=oneshot
+ExecStartPre=/usr/bin/dms ipc call wallpaper clear
+ExecStart=/usr/bin/dms ipc call wallpaper set /usr/share/backgrounds/niri-tomic-os/b70e993b-c633-4f66-b879-bada2a116d49.png
+StandardOutput=journal
+
+[Install]
+WantedBy=graphical-session.target

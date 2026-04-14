@@ -1,0 +1,43 @@
+name: build iso
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "tag de l'image à utiliser pour l'iso"
+        type: string
+        required: false
+        default: "latest"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  build-iso:
+    name: build and upload iso
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: build iso
+        uses: jasonn3/build-container-installer@v1.4.0
+        id: build
+        with:
+          arch: ${{ vars.ARCH }}
+          image_name: ${{ vars.IMAGE_NAME }}
+          image_repo: ghcr.io/${{ github.repository_owner }}
+          image_tag: ${{ github.event.inputs.image_tag || 'latest' }}
+          version: ${{ vars.VERSION }}
+          variant: ${{ vars.VARIANT }}
+          iso_name: ${{ vars.IMAGE_NAME }}-${{ vars.ARCH }}.iso
+
+      - name: upload iso as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.build.outputs.iso_name }}
+          path: |
+            ${{ steps.build.outputs.iso_path }}/${{ steps.build.outputs.iso_name }}
+            ${{ steps.build.outputs.iso_path }}/${{ steps.build.outputs.iso_name }}.sha256
+          retention-days: 1

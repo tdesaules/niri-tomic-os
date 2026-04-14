@@ -1,0 +1,12 @@
+[Unit]
+Description=Topgrade automatic update at login
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/topgrade --config /etc/topgrade/topgrade.toml
+StandardOutput=journal
+
+[Install]
+WantedBy=default.target

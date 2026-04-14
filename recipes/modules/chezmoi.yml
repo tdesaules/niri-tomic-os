@@ -1,0 +1,5 @@
+---
+modules:
+  - type: chezmoi
+    repository: https://github.com/tdesaules/chez-moi
+    file-conflict-policy: replace

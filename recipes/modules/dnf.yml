@@ -1,0 +1,40 @@
+---
+modules:
+  - type: dnf
+    repos:
+      cleanup: true
+      files:
+        - https://github.com/terrapkg/subatomic-repos/raw/main/terra.repo
+      copr:
+        - name: avengemedia/danklinux
+          chroot: fedora-rawhide-x86_64
+        - name: avengemedia/dms
+          chroot: fedora-rawhide-x86_64
+        - name: yalter/niri-git
+          chroot: fedora-rawhide-x86_64
+    install:
+      install-weak-deps: false
+      packages:
+        - terra-release
+        - greetd
+        - dms-greeter
+        - niri
+        - qt6-qtwayland
+        - qt5-qtwayland
+        - dms
+        - dgop
+        - dsearch
+        - sudo-rs
+        - git
+        - ghostty
+        - rio
+        - qemu
+        - chezmoi
+        - topgrade
+        - mise
+        - podman-docker
+        - podman-compose
+        - distrobox
+        - power-profiles-daemon
+        - cargo
+        - cosmic-files

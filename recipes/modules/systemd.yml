@@ -1,0 +1,14 @@
+---
+modules:
+  - type: systemd
+    system:
+      enabled:
+        - greetd.service
+    user:
+      enabled:
+        - dms.service
+        - dms-greeter-sync.service
+        - dsearch.service
+        - dms-wallpaper-set.service
+        - dms-wallpaper-rotation.timer
+        - topgrade.service

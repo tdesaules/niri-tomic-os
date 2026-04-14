@@ -1,0 +1,46 @@
+name: build distro
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "recipes/**"
+      - "files/**"
+      - "modules/**"
+      - "cosign.pub"
+
+  schedule:
+    - cron: "0 0 * * *"
+
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  bluebuild:
+    name: build custom image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        recipe:
+          - recipe.yml
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v4
+
+      - name: build custom image
+        uses: blue-build/github-action@v1.11
+        with:
+          recipe: ${{ matrix.recipe }}
+          cosign_private_key: ${{ secrets.SIGNING_SECRET }}
+          registry_token: ${{ github.token }}
+          pr_event_number: ${{ github.event.number }}
+          maximize_build_space: true

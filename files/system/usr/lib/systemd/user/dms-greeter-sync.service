@@ -1,0 +1,12 @@
+[Unit]
+Description=Sync DMS greeter settings on login
+After=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/dms greeter sync --yes
+StandardOutput=journal
+RemainAfterExit=no
+
+[Install]
+WantedBy=graphical-session.target

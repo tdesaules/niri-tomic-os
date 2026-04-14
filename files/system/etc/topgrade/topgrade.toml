@@ -1,0 +1,11 @@
+[misc]
+assume_yes = true
+cleanup = true
+no_self_update = true
+disable = ["mise"]
+
+[commands]
+"Mise" = "mise install --quiet --yes"
+
+[linux]
+rpm_ostree = true
