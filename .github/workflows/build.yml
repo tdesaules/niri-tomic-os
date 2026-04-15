@@ -1,17 +1,30 @@
 name: bluebuild
+
 on:
   push:
-    paths-ignore:
-      - "**.md"
+    branches:
+      - main
+    paths:
+      - "recipes/**"
+      - "files/**"
+      - "modules/**"
+      - ".github/workflows/build.yml"
+      - "cosign.pub"
 
-  pull_request:
   workflow_dispatch:
+    inputs:
+      build_iso:
+        description: "Set to true to generate the iso"
+        type: boolean
+        default: false
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
   cancel-in-progress: true
+
 jobs:
   bluebuild:
-    name: Build Custom Image
+    name: Build custom image
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -23,6 +36,9 @@ jobs:
         recipe:
           - recipe.yml
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
       - name: Build Custom Image
         uses: blue-build/github-action@v1.11
         with:
@@ -31,8 +47,8 @@ jobs:
           registry_token: ${{ github.token }}
           pr_event_number: ${{ github.event.number }}
           maximize_build_space: true
-
-      - name: Build ISO
+      - name: Build iso
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.build_iso == 'true'
         uses: jasonn3/build-container-installer@v1.4.0
         id: build
         with:
@@ -42,12 +58,12 @@ jobs:
           version: "44"
           variant: "main"
           arch: "x86_64"
-
-      - name: Upload ISO as Artifact
+      - name: Upload iso as artifact
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.build_iso == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.build.outputs.iso_name }}
           path: |
             ${{ steps.build.outputs.iso_path }}/${{ steps.build.outputs.iso_name }}
             ${{ steps.build.outputs.iso_path }}/${{ steps.build.outputs.iso_name }}.sha256
-          retention-days: 7
+          retention-days: 1
