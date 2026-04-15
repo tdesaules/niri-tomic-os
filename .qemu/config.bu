@@ -30,6 +30,15 @@ storage:
           export TERM=linux
           export SYSTEMD_PAGER=cat
 
+    - path: /etc/containers/containers.conf
+      overwrite: true
+      contents:
+        inline: |
+          [containers]
+          netns="host"
+          dns_servers = ["1.1.1.1", "8.8.8.8"]
+          mtu = 1450
+
     - path: /etc/subuid
       mode: 0644
       overwrite: true
