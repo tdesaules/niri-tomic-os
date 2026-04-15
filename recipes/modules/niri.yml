@@ -4,7 +4,7 @@ modules:
     install:
       packages:
         - niri
-        - xorg-x11-server-Xwayland
+        - xorg-x11-server-xwayland
         - qt6-qtwayland
         - qt5-qtwayland
         - xdg-desktop-portal-gtk

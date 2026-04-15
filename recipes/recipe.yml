@@ -1,12 +1,14 @@
 ---
 name: niri-tomic-os
-description: This is my personal Fedora Atomic image with Greetd, Niri and Dank Linux and Nord Theme.
+description: This is my personal Fedora Atomic image with Greetd, Niri and DankLinux with Nord Theme style.
 base-image: ghcr.io/ublue-os/base-main
-image-version: 43
+image-version: 44
 modules:
-  - from-file: common/greetd.yml
-  - from-file: common/dms-greeter.yml
-  - from-file: common/niri.yml
-  - from-file: common/dms.yml
-  - from-file: common/dgop.yml
-  - from-file: common/dsearch.yml
+  - from-file: modules/files.yml
+  - from-file: modules/greetd.yml
+  - from-file: modules/dms-greeter.yml
+  - from-file: modules/niri.yml
+  - from-file: modules/dms.yml
+  - from-file: modules/dgop.yml
+  - from-file: modules/dsearch.yml
+  - from-file: modules/signing.yml
