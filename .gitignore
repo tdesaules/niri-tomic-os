@@ -4,3 +4,4 @@ cosign.private
 /.bluebuild-scripts_*
 .task/*
 .qemu/config.ign
+.DS_Store
