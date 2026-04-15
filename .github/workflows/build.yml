@@ -37,7 +37,7 @@ jobs:
           - recipe.yml
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Build Custom Image
         uses: blue-build/github-action@v1.11
