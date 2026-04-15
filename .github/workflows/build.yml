@@ -1,31 +1,37 @@
-name: Build niri-tomic-os
+name: bluebuild
 on:
   push:
-    branches:
-      - main
+    paths-ignore:
+      - "**.md"
 
+  pull_request:
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
 jobs:
-  build-and-iso:
-    name: Build Image and ISO
+  bluebuild:
+    name: Build Custom Image
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
       id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        recipe:
+          - recipe.yml
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v4
-
-      # 1. Build the OCI Image
       - name: Build Custom Image
         uses: blue-build/github-action@v1.11
         with:
-          recipe: "recipes/recipe.yml"
+          recipe: ${{ matrix.recipe }}
           cosign_private_key: ${{ secrets.SIGNING_SECRET }}
           registry_token: ${{ github.token }}
+          pr_event_number: ${{ github.event.number }}
           maximize_build_space: true
 
-      # 2. Build the ISO using the correct modern action
       - name: Build ISO
         uses: jasonn3/build-container-installer@v1.4.0
         id: build
@@ -33,11 +39,10 @@ jobs:
           image_name: "niri-tomic-os"
           image_repo: "ghcr.io/${{ github.repository_owner }}"
           image_tag: "latest"
-          version: "44" # Matching your Fedora 44 base
+          version: "44"
           variant: "main"
           arch: "x86_64"
 
-      # 3. Upload the resulting ISO
       - name: Upload ISO as Artifact
         uses: actions/upload-artifact@v4
         with:
