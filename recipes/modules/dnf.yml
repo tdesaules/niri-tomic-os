@@ -19,6 +19,7 @@ modules:
         - greetd
         - dms-greeter
         - niri
+        - hyprlock
         - qt6-qtwayland
         - qt5-qtwayland
         - dms

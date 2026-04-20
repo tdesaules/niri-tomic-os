@@ -5,7 +5,7 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/topgrade --no-input
+ExecStart=/usr/bin/topgrade --config /etc/topgrade/topgrade.toml
 
 [Install]
 WantedBy=default.target

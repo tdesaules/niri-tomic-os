@@ -1,7 +1,7 @@
 [misc]
 assume_yes = true
 cleanup = true
-ignored_steps = ["system"]
+ignore = ["system"]
 
 [commands]
 "Niri Tomic OS Upgrade" = "rpm-ostree upgrade"

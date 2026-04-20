@@ -5,6 +5,7 @@ modules:
       enabled:
         - greetd.service
         - asusd.service
+        - supergfxd.service
     user:
       enabled:
         - dms.service
