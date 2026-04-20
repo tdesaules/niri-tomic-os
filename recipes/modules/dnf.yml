@@ -9,6 +9,9 @@ modules:
         - scottames/ghostty
         - lilay/topgrade
         - jdxcode/mise
+        - ilyaz/LACT
+        - psychaos/44-maybe
+        - xanderlent/amd-npu-driver
     install:
       install-weak-deps: false
       packages:
@@ -36,6 +39,22 @@ modules:
         - podman
         - podman-docker
         - podman-compose
+        - mesa-vulkan-drivers
+        - mesa-va-drivers-freeworld
+        - rocm-hip
+        - rocm-opencl
+        - xrt
+        - xdna-driver
+        - tcsh
+        - lact
+        - nvtop
+        - mission-center
+        - power-profiles-daemon
+        - alsa-sof-firmware
+        - libva-utils
+        - vulkan-tools
+        - brightnessctl
+        - gamemode
     # remove:
     #   auto-remove: true
     #   packages:
