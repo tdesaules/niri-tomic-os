@@ -11,7 +11,6 @@ modules:
         - jdxcode/mise
         - ilyaz/LACT
         - psychaos/44-maybe
-        - xanderlent/amd-npu-driver
     install:
       install-weak-deps: false
       packages:
@@ -43,9 +42,6 @@ modules:
         - mesa-va-drivers-freeworld
         - rocm-hip
         - rocm-opencl
-        - xrt
-        - xdna-driver
-        - tcsh
         - lact
         - nvtop
         - mission-center
