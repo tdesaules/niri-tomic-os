@@ -12,4 +12,3 @@ modules:
         - dms-wallpaper-set.service
         - dms-wallpaper-rotation.timer
         - topgrade.timer
-        - lact.service
