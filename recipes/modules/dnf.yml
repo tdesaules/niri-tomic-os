@@ -3,7 +3,6 @@ modules:
   - type: dnf
     repos:
       cleanup: true
-      nonfree: rpmfusion
       copr:
         - avengemedia/danklinux
         - avengemedia/dms
@@ -41,7 +40,6 @@ modules:
         - podman-docker
         - podman-compose
         - mesa-vulkan-drivers
-        - mesa-va-drivers-freeworld
         - rocm-hip
         - rocm-opencl
         - lact
