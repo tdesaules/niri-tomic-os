@@ -10,7 +10,7 @@ modules:
         - scottames/ghostty
         - lilay/topgrade
         - jdxcode/mise
-        - asus-linux/packages
+        - lukenukem/asus-linux
         - ilyaz/LACT
         - psychaos/44-maybe
     install:
