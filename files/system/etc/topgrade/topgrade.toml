@@ -1,0 +1,29 @@
+[misc]
+assume_yes = true
+no_input = true
+cleanup = true
+first = ["chezmoi", "mise", "distrobox"]
+pre_sudo = true
+
+[linux]
+rpm_ostree = true
+
+[flatpak]
+all = true
+use_sudo = false
+
+[containers]
+runtime = "podman"
+
+[chezmoi]
+args = ["--force"]
+
+[mise]
+activate = true
+
+[distrobox]
+containers = []
+use_sudo = false
+
+[firmware]
+upgrade = false

@@ -8,22 +8,18 @@ modules:
         - yalter/niri-git
         - scottames/ghostty
         - lilay/topgrade
+        - jdxcode/mise
     install:
       install-weak-deps: false
       packages:
-        # Login Manager
         - greetd
         - dms-greeter
-
-        # Window Manager & Wayland
         - niri
         - xorg-x11-server-Xwayland
         - qt6-qtwayland
         - qt5-qtwayland
         - xdg-desktop-portal-gtk
         - xdg-desktop-portal-gnome
-
-        # Core System & Dank Linux Shell
         - dms
         - dgop
         - dsearch
@@ -31,14 +27,16 @@ modules:
         - polkit
         - cracklib-dicts
         - authselect
-
-        # Utilities & Apps
         - git
         - ghostty
         - qemu
         - chezmoi
         - topgrade
-    remove:
-      auto-remove: true
-      packages:
-        - waybar
+        - mise
+        - podman
+        - podman-docker
+        - podman-compose
+    # remove:
+    #   auto-remove: true
+    #   packages:
+    #     - waybar

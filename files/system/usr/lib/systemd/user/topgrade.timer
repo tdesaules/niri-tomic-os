@@ -1,0 +1,10 @@
+[Unit]
+Description=Run topgrade every 2 hours and at login
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=2h
+Persistent=true
+
+[Install]
+WantedBy=timers.target
