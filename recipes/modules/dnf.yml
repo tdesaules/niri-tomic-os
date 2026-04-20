@@ -18,39 +18,26 @@ modules:
         - greetd
         - dms-greeter
         - niri
-        - xorg-x11-server-Xwayland
         - qt6-qtwayland
         - qt5-qtwayland
-        - xdg-desktop-portal-gtk
-        - xdg-desktop-portal-gnome
         - dms
         - dgop
         - dsearch
         - sudo-rs
-        - polkit
-        - cracklib-dicts
-        - authselect
         - git
         - ghostty
         - qemu
         - chezmoi
         - topgrade
         - mise
-        - podman
         - podman-docker
         - podman-compose
-        - mesa-vulkan-drivers
         - rocm-hip
         - rocm-opencl
         - lact
-        - nvtop
-        - mission-center
         - power-profiles-daemon
-        - alsa-sof-firmware
-        - libva-utils
         - vulkan-tools
         - brightnessctl
-        - gamemode
     # remove:
     #   auto-remove: true
     #   packages:
