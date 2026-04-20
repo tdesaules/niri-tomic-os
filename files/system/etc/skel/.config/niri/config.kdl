@@ -37,9 +37,21 @@ window-rule {
     clip-to-geometry true
 }
 
+window-rule {
+    match app-id="steam"
+    open-on-workspace "gaming"
+    open-maximized true
+}
+
+window-rule {
+    match app-id="steam" title=r#"^notificationtoasts_\d+_desktop$"#
+    default-floating-position x=10 y=10 relative-to="bottom-right"
+}
+
 binds {
     Mod+T { spawn "ghostty"; }
     Mod+space hotkey-overlay-title="App Launcher Toggle" { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
+    Mod+G { focus-workspace "gaming"; }
 }
 
 gestures {

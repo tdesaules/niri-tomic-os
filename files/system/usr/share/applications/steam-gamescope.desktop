@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Steam Big Picture
+Comment=Launch Steam in Big Picture mode
+Exec=gamescope -e -f --force-grab-cursor --backend sdl -- mangohud steam -gamepadui -system-composer
+Icon=/usr/share/icons/niri-tonic-os/svg/steam.svg
+Terminal=false
+Type=Application
+Categories=Network;FileTransfer;Game;

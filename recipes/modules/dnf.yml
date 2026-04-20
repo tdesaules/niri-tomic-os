@@ -10,6 +10,7 @@ modules:
         - scottames/ghostty
         - lilay/topgrade
         - jdxcode/mise
+        - asus-linux/packages
         - ilyaz/LACT
         - psychaos/44-maybe
     install:
@@ -38,6 +39,11 @@ modules:
         - power-profiles-daemon
         - vulkan-tools
         - brightnessctl
+        - asusctl
+        - supergfxctl
+        - steam
+        - gamescope
+        - mangohud
     # remove:
     #   auto-remove: true
     #   packages:
