@@ -2,6 +2,9 @@
 modules:
   - type: dnf
     repos:
+      cleanup: true
+      nonfree:
+        - rpmfusion
       copr:
         - avengemedia/danklinux
         - avengemedia/dms
