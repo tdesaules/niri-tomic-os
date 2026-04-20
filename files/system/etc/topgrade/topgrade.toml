@@ -1,28 +1,21 @@
 [misc]
 assume_yes = true
-no_input = true
 cleanup = true
+ignored_steps = ["system"]
 
-[linux]
-rpm_ostree = true
-bootc = true
+[commands]
+"Niri Tomic OS Upgrade" = "rpm-ostree upgrade"
 
 [flatpak]
-all = true
-use_sudo = false
 
 [containers]
-runtime = "podman"
 
 [chezmoi]
-args = ["--force"]
 
 [mise]
-activate = true
+jobs = 2
 
 [distrobox]
-containers = []
-use_sudo = false
 
 [firmware]
 upgrade = false

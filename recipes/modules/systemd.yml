@@ -4,6 +4,7 @@ modules:
     system:
       enabled:
         - greetd.service
+        - asusd.service
     user:
       enabled:
         - dms.service
@@ -12,4 +13,3 @@ modules:
         - dms-wallpaper-set.service
         - dms-wallpaper-rotation.timer
         - topgrade.timer
-        - asusd.service
