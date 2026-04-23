@@ -35,6 +35,11 @@ modules:
         - podman-docker
         - podman-compose
         - distrobox
+        - lm_sensors
         - power-profiles-daemon
-        - cargo
+        - openssl
         - cosmic-files
+    # remove:
+    #   auto-remove: false
+    #   packages:
+    #     - firefox
