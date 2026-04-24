@@ -39,7 +39,8 @@ modules:
         - power-profiles-daemon
         - openssl
         - cosmic-files
-    # remove:
-    #   auto-remove: false
-    #   packages:
-    #     - firefox
+    remove:
+      auto-remove: false
+      packages:
+        - flatpak
+        # - firefox

@@ -2,7 +2,7 @@
 Description=Timer to rotate wallpaper every hour
 
 [Timer]
-OnStartupSec=1h
+OnBootSec=1h
 OnUnitActiveSec=1h
 Persistent=true
 
