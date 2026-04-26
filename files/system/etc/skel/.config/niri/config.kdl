@@ -6,6 +6,7 @@ input {
         accel-speed 0.2
         accel-profile "adaptive"
         scroll-method "two-finger"
+        click-method "clickfinger"
         natural-scroll
         dwt
         dwtp
@@ -33,27 +34,13 @@ layout {
 }
 
 window-rule {
-    geometry-corner-radius 10
+    geometry-corner-radius 12
     clip-to-geometry true
-}
-
-workspace "gaming"
-
-window-rule {
-    match app-id="steam"
-    open-on-workspace "gaming"
-    open-maximized true
-}
-
-window-rule {
-    match app-id="steam" title=r#"^notificationtoasts_\d+_desktop$"#
-    default-floating-position x=10 y=10 relative-to="bottom-right"
 }
 
 binds {
     Mod+T { spawn "ghostty"; }
     Mod+space hotkey-overlay-title="App Launcher Toggle" { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
-    Mod+G { focus-workspace "gaming"; }
 }
 
 gestures {
