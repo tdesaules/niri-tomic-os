@@ -39,10 +39,8 @@ modules:
         - power-profiles-daemon
         - openssl
         - cosmic-files
-        - gamescope
-        - gamemode
     remove:
       auto-remove: false
       packages:
         - flatpak
-        # - firefox
+        - firefox
