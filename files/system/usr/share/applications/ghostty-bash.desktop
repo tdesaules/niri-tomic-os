@@ -1,6 +1,6 @@
 [Desktop Entry]
 Version=1.0
-Name=Ghostty (Nu)
+Name=Ghostty (Bash)
 Type=Application
 Comment=A terminal emulator
 Exec=/usr/bin/ghostty -e bash --login

@@ -1,9 +1,9 @@
 [Desktop Entry]
 Version=1.0
-Name=Ghostty (Nu)
+Name=Ghostty (Bash Fallback)
 Type=Application
 Comment=A terminal emulator
-Exec=/usr/bin/ghostty -e bash --norc
+Exec=/usr/bin/ghostty -e bash -noprofile --norc
 Icon=/usr/share/icons/niri-tonic-os/svg/terminal-bash-norc.svg
 Categories=System;TerminalEmulator;
 Keywords=terminal;tty;pty;
