@@ -27,7 +27,6 @@ modules:
         - sudo-rs
         - git
         - ghostty
-        - rio
         - qemu
         - chezmoi
         - topgrade
