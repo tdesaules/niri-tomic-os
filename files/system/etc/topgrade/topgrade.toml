@@ -2,10 +2,11 @@
 assume_yes = true
 cleanup = true
 no_self_update = true
-disable = ["mise"]
+disable = ["mise","chezmoi"]
 
 [commands]
 "Mise" = "/usr/bin/mise install --quiet --yes"
+"Chezmoi" = "/usr/bin/chezmoi update --force"
 
 [linux]
 rpm_ostree = true
