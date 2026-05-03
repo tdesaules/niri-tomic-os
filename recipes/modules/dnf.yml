@@ -46,3 +46,4 @@ modules:
       packages:
         - flatpak
         - firefox
+        - nano
