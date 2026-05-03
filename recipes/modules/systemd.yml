@@ -11,4 +11,4 @@ modules:
         - dsearch.service
         - dms-wallpaper-set.service
         - dms-wallpaper-rotation.timer
-        - topgrade.service
+        - topgrade.timer
