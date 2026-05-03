@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Files
+Comment=File manager for the COSMIC desktop
+Exec=cosmic-files %U
+Icon=/usr/share/icons/niri-tonic-os/svg/files.svg
+Terminal=false
+Type=Application
+StartupNotify=true
+Icon=com.system76.CosmicFiles
+Categories=COSMIC;Utility;FileManager;
+Keywords=Folder;Manager;
+MimeType=inode/directory;
