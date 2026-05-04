@@ -2,7 +2,7 @@
 Description=Delay Topgrade update by 5mn after login
 
 [Timer]
-OnBootSec=2m
+OnBootSec=5m
 Persistent=true
 
 [Install]
