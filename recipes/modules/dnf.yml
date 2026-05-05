@@ -41,6 +41,7 @@ modules:
         - make
         - gcc
         - g++
+        - brightnessctl
     remove:
       auto-remove: false
       packages:
