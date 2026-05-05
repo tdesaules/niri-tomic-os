@@ -42,6 +42,7 @@ modules:
         - gcc
         - g++
         - brightnessctl
+        - libsecret
     remove:
       auto-remove: false
       packages:
