@@ -43,6 +43,7 @@ modules:
         - g++
         - brightnessctl
         - libsecret
+        - timg
     remove:
       auto-remove: false
       packages:
