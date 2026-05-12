@@ -1,4 +1,4 @@
-name: build distro
+name: Build distro
 
 on:
   push:
@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   bluebuild:
-    name: build custom image
+    name: Build custom image
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -33,10 +33,10 @@ jobs:
         recipe:
           - recipe.yml
     steps:
-      - name: checkout repo
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: build custom image
+      - name: Build custom image
         uses: blue-build/github-action@v1.11
         with:
           recipe: ${{ matrix.recipe }}

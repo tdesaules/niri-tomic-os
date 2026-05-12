@@ -32,7 +32,13 @@ The `latest` tag will automatically point to the latest build. That build will s
 
 ## ISO
 
-If build on Fedora Atomic, you can generate an offline ISO with the instructions available [here](https://blue-build.org/how-to/generate-iso/#_top). These ISOs cannot unfortunately be distributed on GitHub for free due to large sizes, so for public projects something else has to be used for hosting.
+![Dynamic JSON Badge](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fgist.githubusercontent.com%2Ftdesaules%2F93883cb28c830015a10172604676af73%2Fraw%2Fniri-tomic-os.uuid.json&query=%24.uuid&label=uuid&color=blue)
+
+```bash
+oras pull ttl.sh/niri-tomic-os-x86_64-$(curl -s https://gist.githubusercontent.com/tdesaules/93883cb28c830015a10172604676af73/raw/niri-tomic-os.uuid.json | jq -r '.uuid'):24h
+oras manifest fetch ttl.sh/niri-tomic-os-x86_64-$(curl -s https://gist.githubusercontent.com/tdesaules/93883cb28c830015a10172604676af73/raw/niri-tomic-os.uuid.json | jq -r '.uuid'):24h
+cosign verify-blob --bundle niri-tomic-os-x86_64.iso.sigstore.json --policy niri-tomic-os-x86_64.policy.json niri-tomic-os-x86_64.iso
+```
 
 ## Verification
 
