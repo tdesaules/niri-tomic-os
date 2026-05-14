@@ -3,3 +3,4 @@ cosign.private
 /Containerfile
 /.bluebuild-scripts_*
 .DS_Store
+**/.DS_Store
