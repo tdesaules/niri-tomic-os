@@ -1,13 +1,9 @@
 name: Build iso
 
 on:
-  workflow_dispatch:
-    inputs:
-      image_tag:
-        description: "tag de l'image à utiliser pour l'iso"
-        type: string
-        required: false
-        default: "latest"
+  workflow_dispatch: {}
+  schedule:
+    - cron: "0 2 * * *"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
@@ -15,29 +11,37 @@ concurrency:
 
 jobs:
   build-iso:
-    name: Build and upload iso
+    name: Build, sign and push iso to ttl.sh
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: read
+      id-token: write
     steps:
+      - name: Set up oras
+        uses: oras-project/setup-oras@v2.0.0
+
+      - name: Set up cosign
+        uses: sigstore/cosign-installer@v4.1.0
+
       - name: Build iso
         uses: jasonn3/build-container-installer@v1.4.0
-        id: build
         with:
           arch: ${{ vars.ARCH }}
           image_name: ${{ vars.IMAGE_NAME }}
           image_repo: ghcr.io/${{ github.repository_owner }}
-          image_tag: ${{ github.event.inputs.image_tag || 'latest' }}
+          image_tag: latest
           version: ${{ vars.VERSION }}
           variant: ${{ vars.VARIANT }}
           iso_name: ${{ vars.IMAGE_NAME }}-${{ vars.ARCH }}.iso
 
-      - name: Upload iso as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ steps.build.outputs.iso_name }}
-          path: |
-            ${{ steps.build.outputs.iso_path }}/${{ steps.build.outputs.iso_name }}
-            ${{ steps.build.outputs.iso_path }}/${{ steps.build.outputs.iso_name }}.sha256
-          retention-days: 1
+      - name: Sign and push iso oci
+        run: |
+          ISO_FILE="${{ vars.IMAGE_NAME }}-${{ vars.ARCH }}.iso"
+          UUID=$(uuid=$(openssl rand -hex 32); echo "${uuid:0:8}-${uuid:8:4}-${uuid:12:4}-${uuid:16:4}-${uuid:20:12}")
+          OCI="ttl.sh/${{ vars.IMAGE_NAME }}-${{ vars.ARCH }}-${UUID}"
+          TTL="24h"
+          HASH=$(cut -d ' ' -f 1 "${ISO_FILE}-CHECKSUM")
+          cosign sign-blob --yes --bundle "${ISO_FILE}.sigstore.json" "${ISO_FILE}"
+          oras push --annotation "org.opencontainers.image.iso.digest=sha256:${HASH}" "${OCI}:${TTL}" "${ISO_FILE}" "${ISO_FILE}.sigstore.json"
+          curl -X PATCH -H "Authorization: token ${{ secrets.GIST_TOKEN }}" -H "Accept: application/vnd.github.v3+json" -d "{\"files\":{\"niri-tomic-os.uuid.json\":{\"content\":\"{\\\"uuid\\\":\\\"${UUID}\\\"}\"}}}" "https://api.github.com/gists/${{ vars.GIST_ID }}"

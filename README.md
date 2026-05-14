@@ -37,7 +37,11 @@ The `latest` tag will automatically point to the latest build. That build will s
 ```bash
 oras pull ttl.sh/niri-tomic-os-x86_64-$(curl -s https://gist.githubusercontent.com/tdesaules/93883cb28c830015a10172604676af73/raw/niri-tomic-os.uuid.json | jq -r '.uuid'):24h
 oras manifest fetch ttl.sh/niri-tomic-os-x86_64-$(curl -s https://gist.githubusercontent.com/tdesaules/93883cb28c830015a10172604676af73/raw/niri-tomic-os.uuid.json | jq -r '.uuid'):24h
-cosign verify-blob --bundle niri-tomic-os-x86_64.iso.sigstore.json --policy niri-tomic-os-x86_64.policy.json niri-tomic-os-x86_64.iso
+cosign verify-blob \
+  --bundle niri-tomic-os-x86_64.iso.sigstore.json \
+  --certificate-identity "https://github.com/tdesaules/niri-tomic-os/.github/workflows/build-iso.yml@refs/heads/main" \
+  --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+  niri-tomic-os-x86_64.iso
 ```
 
 ## Verification
