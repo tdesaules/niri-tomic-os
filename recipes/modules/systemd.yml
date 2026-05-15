@@ -5,6 +5,7 @@ modules:
       enabled:
         - greetd.service
         - podman.socket
+        - fcitx5.service
     user:
       enabled:
         - dms.service
