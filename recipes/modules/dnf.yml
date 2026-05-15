@@ -5,6 +5,7 @@ modules:
       cleanup: true
       files:
         - https://github.com/terrapkg/subatomic-repos/raw/main/terra.repo
+        - https://rpm.oxen.io/fedora/oxen.repo
       copr:
         - name: avengemedia/danklinux
           chroot: fedora-rawhide-x86_64
@@ -48,6 +49,8 @@ modules:
         - fcitx5-hangul
         - fcitx5-configtool
         - fcitx5-gtk fcitx5-qt
+        - lokinet
+        - lokinet-gui
     remove:
       auto-remove: false
       packages:
