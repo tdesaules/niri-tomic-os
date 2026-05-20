@@ -2,7 +2,7 @@
 name: niri-tomic-os
 description: This is my personal Fedora Atomic image with Greetd, Niri and DankLinux with Nord Theme style.
 base-image: quay.io/fedora-ostree-desktops/base-atomic
-image-version: rawhide
+image-version: 44
 modules:
   - from-file: modules/dnf.yml
   - from-file: modules/files.yml
