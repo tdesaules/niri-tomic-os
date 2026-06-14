@@ -1,0 +1,44 @@
+name: Build Niri-Tomic Bootc ISOs
+
+on:
+  workflow_dispatch: # Déclencheur manuel uniquement
+
+jobs:
+  build-iso:
+    name: Build ISO (${{ matrix.arch }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [amd64, arm64] # Lance les deux builds en parallèle
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      # Requis pour que osbuild puisse cross-compiler l'ISO ARM64 sur un serveur Intel
+      - name: Configuration de QEMU (Pour ARM64)
+        if: matrix.arch == 'arm64'
+        uses: docker/setup-qemu-action@v3
+
+      - name: Création des dossiers de build
+        run: mkdir -p output-iso
+
+      - name: Génération de l'image ISO avec Bootc Image Builder
+        run: |
+          sudo podman run --rm --privileged \
+            -v ./output-iso:/output \
+            quay.io/centos-bootc/bootc-image-builder:latest \
+            --type anaconda-iso \
+            --target-arch ${{ matrix.arch }} \
+            --rootfs ext4 \
+            ghcr.io/tdesaules/niri-tomic-os:latest
+
+      # Sauvegarde de l'ISO en tant qu'artefact téléchargeable
+      - name: Téléversement de l'ISO (Rétention 24h)
+        uses: actions/upload-artifact@v4
+        with:
+          name: niri-tomic-os-${{ matrix.arch }}-iso
+          path: output-iso/anaconda/install.iso
+          if-no-files-found: error
+          retention-days: 1 # Expire automatiquement après 24 heures
