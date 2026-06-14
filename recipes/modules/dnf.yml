@@ -6,12 +6,9 @@ modules:
       files:
         - https://github.com/terrapkg/subatomic-repos/raw/main/terra.repo
       copr:
-        - name: avengemedia/danklinux
-          chroot: fedora-44-x86_64
-        - name: avengemedia/dms
-          chroot: fedora-44-x86_64
-        - name: yalter/niri-git
-          chroot: fedora-44-x86_64
+        - avengemedia/danklinux
+        - avengemedia/dms
+        - yalter/niri-git
     install:
       install-weak-deps: false
       packages:
