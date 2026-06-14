@@ -16,18 +16,29 @@ jobs:
       - name: Checkout du code
         uses: actions/checkout@v4
 
-      # Requis pour que osbuild puisse cross-compiler l'ISO ARM64 sur un serveur Intel
+      # Requis pour que la machine GitHub puisse manipuler l'ISO ARM64
       - name: Configuration de QEMU (Pour ARM64)
         if: matrix.arch == 'arm64'
         uses: docker/setup-qemu-action@v3
 
+      # Étape cruciale : On télécharge l'image dans le stockage de la VM GitHub avant le build
+      - name: Téléchargement de l'image OCI cible
+        run: |
+          if [ "${{ matrix.arch }}" = "arm64" ]; then
+            sudo podman pull --platform linux/arm64 ghcr.io/tdesaules/niri-tomic-os:latest
+          else
+            sudo podman pull --platform linux/amd64 ghcr.io/tdesaules/niri-tomic-os:latest
+          fi
+
       - name: Création des dossiers de build
         run: mkdir -p output-iso
 
+      # On remet le volume obligatoire /var/lib/containers/storage
       - name: Génération de l'image ISO avec Bootc Image Builder
         run: |
           sudo podman run --rm --privileged \
             -v ./output-iso:/output \
+            -v /var/lib/containers/storage:/var/lib/containers/storage \
             quay.io/centos-bootc/bootc-image-builder:latest \
             --type anaconda-iso \
             --target-arch ${{ matrix.arch }} \
