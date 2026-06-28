@@ -47,6 +47,7 @@ modules:
         - fcitx5-gtk
         - fcitx5-qt
         - pinentry
+        - pinentry-curses
         - pinentry-tty
     remove:
       auto-remove: false
