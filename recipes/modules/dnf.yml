@@ -46,6 +46,8 @@ modules:
         - fcitx5-configtool
         - fcitx5-gtk
         - fcitx5-qt
+        - pinentry
+        - pinentry-tty
     remove:
       auto-remove: false
       packages:
