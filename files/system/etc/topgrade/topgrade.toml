@@ -2,10 +2,9 @@
 assume_yes = true
 cleanup = true
 no_self_update = true
-disable = ["mise","chezmoi"]
+disable = ["chezmoi"]
 
 [commands]
-"Mise" = "/usr/bin/mise install --quiet --yes"
 "Chezmoi" = "/usr/bin/chezmoi update --force --refresh-externals"
 
 [linux]
