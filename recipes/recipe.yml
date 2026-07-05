@@ -13,4 +13,3 @@ modules:
   - from-file: modules/os-release.yml
   - from-file: modules/signing.yml
   - from-file: modules/systemd.yml
-  - from-file: modules/chezmoi.yml

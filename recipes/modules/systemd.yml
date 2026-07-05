@@ -15,3 +15,4 @@ modules:
         - topgrade.timer
         - podman.socket
         - fcitx5.service
+        - chezmoi-first-init.service

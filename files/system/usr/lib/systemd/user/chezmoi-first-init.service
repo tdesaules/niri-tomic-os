@@ -1,0 +1,13 @@
+[Unit]
+Description=First-login chezmoi init terminal
+After=dms.service
+Requires=dms.service
+PartOf=graphical-session.target
+ConditionPathExists=!%h/.local/share/chezmoi
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/ghostty -e /bin/bash -lc "/usr/bin/chezmoi init --apply https://github.com/tdesaules/chez-moi.git --refresh-externals --force"
+
+[Install]
+WantedBy=graphical-session.target
