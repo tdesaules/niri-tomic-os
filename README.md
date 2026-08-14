@@ -1,12 +1,37 @@
-# niri-tomic-os &nbsp; [![bluebuild build badge](https://github.com/tdesaules/niri-tomic-os/actions/workflows/build.yml/badge.svg)](https://github.com/tdesaules/niri-tomic-os/actions/workflows/build.yml)
+# niri-tomic-os &nbsp; [![Build distro](https://github.com/tdesaules/niri-tomic-os/actions/workflows/build-distro.yml/badge.svg)](https://github.com/tdesaules/niri-tomic-os/actions/workflows/build-distro.yml)
 
-See the [BlueBuild docs](https://blue-build.org/how-to/setup/) for quick setup instructions for setting up your own repository based on this template.
+**Niri Tonic OS** is a personal immutable [Fedora Atomic](https://fedoraproject.org/atomic-desktops/) desktop image, built with [BlueBuild](https://blue-build.org) on top of the [Universal Blue](https://universal-blue.org/) `base-atomic` image (Fedora 44).
 
-After setup, it is recommended you update this README to describe your custom image.
+It ships a [Niri](https://niri-wm.github.io/) scrollable-tiling Wayland session powered by [Dank Material Shell (DMS)](https://danklinux.com/), with `greetd` + `dms-greeter` and a full [Nord](https://www.nordtheme.com/) theme.
+
+## Highlights
+
+- **Niri** Wayland compositor (COPR `yalter/niri-git`) with a Nord-flavored KDL configuration
+- **DMS** (Dank Material Shell): panel, spotlight/app launcher (`Mod+Space`), wallpaper rotation, greeter sync
+- **greetd** + **dms-greeter** graphical login
+- **Ghostty** terminal and **COSMIC Files** file manager
+- **fcitx5** input method (including Hangul)
+- **chezmoi**: user dotfiles auto-applied on first login from [tdesaules/chez-moi](https://github.com/tdesaules/chez-moi)
+- **topgrade** automated updates (rpm-ostree + chezmoi; firmware updates deliberately disabled)
+- **Podman** (`podman-docker`, `podman-compose`) and **distrobox** for containerized workflows
+- Hardware-specific tweaks for Strix Halo: WirePlumber AMD SoundWire audio fix, battery charge threshold capped at 85%
+- Multi-arch builds: `linux/amd64` and `linux/arm64`
+- Images signed with [Sigstore cosign](https://www.sigstore.dev/)
+
+## Target hardware & usage
+
+Tuned for an **ASUS ProArt PX13 (HN7306)**:
+
+- AMD Ryzen AI MAX+ 395 (Strix Halo)
+- AMD XDNA NPU
+- AMD Radeon 8060S Graphics
+- 128 GB LPDDR5X (96 GB VRAM + 32 GB RAM)
+
+Primary use cases: local LLM serving with [Lemonade](https://lemonade-server.ai), gaming with Steam, and Development / DevOps / SRE work.
 
 ## Installation
 
-> [!WARNING]  
+> [!WARNING]
 > [This is an experimental feature](https://www.fedoraproject.org/wiki/Changes/OstreeNativeContainerStable), try at your own discretion.
 
 To rebase an existing atomic Fedora installation to the latest build:
@@ -51,3 +76,36 @@ These images are signed with [Sigstore](https://www.sigstore.dev/)'s [cosign](ht
 ```bash
 cosign verify --key cosign.pub ghcr.io/tdesaules/niri-tomic-os
 ```
+
+## Repository structure
+
+```
+├── recipes/
+│   ├── recipe.yml              # Main image recipe (base image, platforms, modules)
+│   └── modules/                # BlueBuild modules: dnf, files, systemd, signing, ...
+├── files/
+│   └── system/                 # Static files copied verbatim to / (etc/, usr/)
+│       ├── etc/                # niri, greetd, dms, topgrade, wireplumber, sudoers
+│       └── usr/                # systemd units, fonts, icons, wallpapers, firmware
+├── .github/workflows/          # Image and ISO build pipelines
+└── cosign.pub                  # Public key used to verify images
+```
+
+## Builds
+
+- `build-distro.yml`: builds and signs the image on every push to `main` touching `recipes/`, `files/` or `cosign.pub`, plus a nightly rebuild, and pushes to `ghcr.io/tdesaules/niri-tomic-os`.
+- `build-iso.yml`: daily + manual installer ISO build, signed with Sigstore and pushed to `ttl.sh` (24h TTL).
+
+Local build with the [BlueBuild CLI](https://blue-build.org/how-to/build-locally/):
+
+```bash
+bluebuild build recipe.yml
+```
+
+## User configuration
+
+The image stays intentionally lean on the user side: on first graphical login, `chezmoi-first-init.service` applies the dotfiles from <https://github.com/tdesaules/chez-moi>. Personal tooling and shell configuration live in that repository, not in this image.
+
+## License
+
+[GPL-3.0](LICENSE)
