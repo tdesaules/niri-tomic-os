@@ -7,7 +7,6 @@ on:
     paths:
       - "recipes/**"
       - "files/**"
-      - "modules/**"
       - "cosign.pub"
 
   schedule:
