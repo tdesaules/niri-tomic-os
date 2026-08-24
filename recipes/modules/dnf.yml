@@ -50,6 +50,7 @@ modules:
         - pinentry
         - pinentry-curses
         - pinentry-tty
+        - xdg-desktop-portal-gnome
     remove:
       auto-remove: false
       packages:
