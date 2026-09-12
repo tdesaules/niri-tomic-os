@@ -1,7 +1,5 @@
 [Unit]
 Description=First-login chezmoi init terminal
-After=dms.service
-Requires=dms.service
 PartOf=graphical-session.target
 ConditionPathExists=!%h/.local/share/chezmoi
 
