@@ -9,4 +9,4 @@ ExecStart=/bin/bash -c 'for attempt in {1..30}; do output=$(/usr/bin/dms ipc cal
 StandardOutput=journal
 
 [Install]
-WantedBy=graphical-session.target
+WantedBy=dms.service
