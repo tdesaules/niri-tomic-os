@@ -3,6 +3,7 @@ Description=Topgrade automatic update at login
 After=network-online.target chezmoi-first-init.service
 Wants=network-online.target
 ConditionPathExists=%h/.local/state/chezmoi/bootstrap-complete
+ConditionUser=!greeter
 
 [Service]
 Type=oneshot

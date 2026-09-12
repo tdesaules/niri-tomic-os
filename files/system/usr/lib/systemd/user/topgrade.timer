@@ -1,5 +1,6 @@
 [Unit]
 Description=Delay Topgrade update by 5mn after login
+ConditionUser=!greeter
 
 [Timer]
 OnActiveSec=5m

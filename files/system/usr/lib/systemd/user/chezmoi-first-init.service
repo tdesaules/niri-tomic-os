@@ -3,6 +3,7 @@ Description=First-login chezmoi init terminal
 PartOf=graphical-session.target
 After=graphical-session.target
 ConditionPathExists=!%h/.local/state/chezmoi/bootstrap-complete
+ConditionUser=!greeter
 
 [Service]
 Type=oneshot
