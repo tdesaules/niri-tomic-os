@@ -1,6 +1,6 @@
 [Unit]
 Description=Fcitx5 Input Method Editor
-After=graphical-session.target
+After=graphical-session.target chezmoi-first-init.service
 
 [Service]
 ExecStart=/usr/bin/fcitx5

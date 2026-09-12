@@ -6,7 +6,7 @@ It ships a [Niri](https://niri-wm.github.io/) scrollable-tiling Wayland session 
 
 ## Highlights
 
-- **Niri** Wayland compositor (COPR `yalter/niri-git`) with a Nord-flavored KDL configuration
+- **Niri** Wayland compositor from Fedora with a Nord-flavored KDL configuration
 - **DMS** (Dank Material Shell): panel, spotlight/app launcher (`Mod+Space`), wallpaper rotation, greeter sync
 - **greetd** + **dms-greeter** graphical login
 - **Ghostty** terminal and **COSMIC Files** file manager
@@ -94,7 +94,7 @@ cosign verify --key cosign.pub ghcr.io/tdesaules/niri-tomic-os
 ## Builds
 
 - `build-distro.yml`: builds and signs the image on every push to `main` touching `recipes/`, `files/` or `cosign.pub`, plus a nightly rebuild, and pushes to `ghcr.io/tdesaules/niri-tomic-os`.
-- `build-iso.yml`: daily + manual installer ISO build, signed with Sigstore and pushed to `ttl.sh` (24h TTL).
+- `build-iso.yml`: installer ISO build after each successful image workflow, or manually, signed with Sigstore and pushed to `ttl.sh` (24h TTL).
 
 Local build with the [BlueBuild CLI](https://blue-build.org/how-to/build-locally/):
 

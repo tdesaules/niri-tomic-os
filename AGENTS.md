@@ -12,7 +12,7 @@ User-side configuration (dotfiles, shell, personal tooling) is NOT part of this 
 
 - `recipes/recipe.yml` — main recipe: base image, Fedora version, platforms, module list
 - `recipes/modules/` — BlueBuild modules:
-  - `dnf.yml` — COPR repos (terra, danklinux, dms, niri-git), package install/remove
+  - `dnf.yml` — Fedora, Terra, and Dank Linux package install/remove configuration
   - `files.yml` — copies `files/system` to `/`
   - `systemd.yml` — enabled system and user units
   - `initramfs.yml`, `os-release.yml`, `signing.yml`
@@ -48,7 +48,7 @@ There is no test suite; validation means building the image successfully.
 - Immutable-image friendly changes only: prefer `/etc` files, systemd units, `tmpfiles.d`/`sysusers.d` over anything assuming runtime mutation. User-level changes belong in the chezmoi repository, not here.
 - Packages are intentionally removed in `dnf.yml` (`flatpak`, `firefox`, `nano`) and firmware updates are intentionally disabled in topgrade (`disable = ["firmware"]`); do not reintroduce them without being asked.
 - Weak dependencies are disabled (`install-weak-deps: false`): if a package needs an extra dependency, add it explicitly.
-- COPR packages are version-pinned in `dnf.yml` (e.g. `dms-1.5.3-1.fc44`, `niri-0.0.git.2853.720c3884-1.fc44`); Fedora and Terra packages float. When bumping `image-version` or updating a pinned package, update the NEVRA accordingly (check availability on both `x86_64` and `aarch64` COPR chroots).
+- COPR repositories prune old builds, so stable Dank packages float in `dnf.yml`; Niri comes from Fedora. Verify package availability and compatibility on both `x86_64` and `aarch64` before changing repositories or package names.
 
 ## Common tasks
 
@@ -65,4 +65,4 @@ There is no test suite; validation means building the image successfully.
 ## CI notes
 
 - `build-distro.yml` — `blue-build/github-action@v1.11`, cosign signing via `SIGNING_SECRET`, push to GHCR.
-- `build-iso.yml` — daily + manual installer ISO, signed with Sigstore, pushed to `ttl.sh` with 24h TTL; the current UUID is published to a gist.
+- `build-iso.yml` — installer ISO after successful image workflows or manual dispatch, signed with Sigstore, pushed to `ttl.sh` with 24h TTL; the current UUID is published to a gist.
