@@ -1,7 +1,8 @@
 [Unit]
 Description=Topgrade automatic update at login
-After=network-online.target
+After=network-online.target chezmoi-first-init.service
 Wants=network-online.target
+ConditionPathExists=%h/.local/state/chezmoi/bootstrap-complete
 
 [Service]
 Type=oneshot

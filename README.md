@@ -104,7 +104,7 @@ bluebuild build recipe.yml
 
 ## User configuration
 
-The image stays intentionally lean on the user side: on first graphical login, `chezmoi-first-init.service` applies the dotfiles from <https://github.com/tdesaules/chez-moi>. Personal tooling and shell configuration live in that repository, not in this image.
+The image stays intentionally lean on the user side: on the first graphical login, `chezmoi-first-init.timer` schedules the dotfiles bootstrap from <https://github.com/tdesaules/chez-moi> and retries on later logins until setup succeeds. Automatic Topgrade updates start only after that bootstrap completes. Personal tooling and shell configuration live in the chezmoi repository, not in this image.
 
 ## License
 

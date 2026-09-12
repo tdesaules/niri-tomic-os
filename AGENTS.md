@@ -6,7 +6,7 @@
 
 The build is fully declarative: the image is described by `recipes/recipe.yml` + `recipes/modules/*.yml` (BlueBuild modules) and static files under `files/system/` (copied verbatim to `/`). There are no imperative build scripts in this repository.
 
-User-side configuration (dotfiles, shell, personal tooling) is NOT part of this image: it is applied on first login by `chezmoi-first-init.service` from <https://github.com/tdesaules/chez-moi>.
+User-side configuration (dotfiles, shell, personal tooling) is NOT part of this image: `chezmoi-first-init.timer` schedules it after the first graphical login through `chezmoi-first-init.service` using <https://github.com/tdesaules/chez-moi>. Initialization retries on later sessions until chezmoi writes `~/.local/state/chezmoi/bootstrap-complete`; automatic Topgrade updates require that marker.
 
 ## Repository map
 

@@ -1,0 +1,11 @@
+[Unit]
+Description=Schedule first-login chezmoi initialization
+PartOf=graphical-session.target
+ConditionPathExists=!%h/.local/state/chezmoi/bootstrap-complete
+
+[Timer]
+OnActiveSec=1s
+Unit=chezmoi-first-init.service
+
+[Install]
+WantedBy=graphical-session.target

@@ -1,11 +1,9 @@
 [Unit]
 Description=First-login chezmoi init terminal
 PartOf=graphical-session.target
-ConditionPathExists=!%h/.local/share/chezmoi
+After=graphical-session.target
+ConditionPathExists=!%h/.local/state/chezmoi/bootstrap-complete
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/ghostty -e /bin/bash -lc "/usr/bin/chezmoi init --apply https://github.com/tdesaules/chez-moi.git --refresh-externals --force"
-
-[Install]
-WantedBy=graphical-session.target
+ExecStart=/usr/bin/ghostty -e /bin/bash -lc 'if [ -d "$HOME/.local/share/chezmoi/.git" ]; then /usr/bin/chezmoi git -- pull --ff-only && /usr/bin/chezmoi init --apply --refresh-externals --force; else /usr/bin/chezmoi init --apply https://github.com/tdesaules/chez-moi.git --refresh-externals --force; fi'
