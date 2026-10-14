@@ -8,6 +8,7 @@ modules:
       copr:
         - avengemedia/danklinux
         - avengemedia/dms
+        - jdxcode/mise
     install:
       install-weak-deps: false
       # COPR repositories prune old builds, so packages must follow stable releases.
